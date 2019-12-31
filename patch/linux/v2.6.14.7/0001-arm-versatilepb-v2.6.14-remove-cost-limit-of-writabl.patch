@@ -1,0 +1,54 @@
+From 712ecbfdb6c6a030bef7462326e2ab940f90845f Mon Sep 17 00:00:00 2001
+From: Wu Zhangjin <wuzhangjin@gmail.com>
+Date: Mon, 30 Dec 2019 21:30:40 +0800
+Subject: [PATCH] arm/versatilepb: v2.6.14: remove cost limit of writable
+ variable
+
+This fix up such errors:
+
+error: read-only variable __r2 used as asm output
+
+Signed-off-by: Wu Zhangjin <wuzhangjin@gmail.com>
+---
+ include/asm-arm/uaccess.h   | 2 +-
+ include/asm-arm/unaligned.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/asm-arm/uaccess.h b/include/asm-arm/uaccess.h
+index a2fdad0..95fc992 100644
+--- a/include/asm-arm/uaccess.h
++++ b/include/asm-arm/uaccess.h
+@@ -114,7 +114,7 @@ extern int __get_user_bad(void);
+ #define get_user(x,p)							\
+ 	({								\
+ 		const register typeof(*(p)) __user *__p asm("r0") = (p);\
+-		register typeof(*(p)) __r2 asm("r2");			\
++		register unsigned long __r2 asm("r2");			\
+ 		register int __e asm("r0");				\
+ 		switch (sizeof(*(__p))) {				\
+ 		case 1:							\
+diff --git a/include/asm-arm/unaligned.h b/include/asm-arm/unaligned.h
+index 1b39c2f..787bcab 100644
+--- a/include/asm-arm/unaligned.h
++++ b/include/asm-arm/unaligned.h
+@@ -53,7 +53,7 @@ extern int __bug_unaligned_x(void *ptr);
+ 
+ #define __get_unaligned_le(ptr)					\
+ 	({							\
+-		__typeof__(*(ptr)) __v;				\
++		unsigned long long __v;				\
+ 		__u8 *__p = (__u8 *)(ptr);			\
+ 		switch (sizeof(*(ptr))) {			\
+ 		case 1:	__v = *(ptr);			break;	\
+@@ -73,7 +73,7 @@ extern int __bug_unaligned_x(void *ptr);
+ 
+ #define __get_unaligned_be(ptr)					\
+ 	({							\
+-		__typeof__(*(ptr)) __v;				\
++		unsigned long long __v;				\
+ 		__u8 *__p = (__u8 *)(ptr);			\
+ 		switch (sizeof(*(ptr))) {			\
+ 		case 1:	__v = *(ptr);			break;	\
+-- 
+1.9.1
+
